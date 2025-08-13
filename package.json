@@ -1,0 +1,33 @@
+{
+  "name": "elevate-automated-job-email-system",
+  "version": "1.0.0",
+  "description": "Automated system that monitors job postings and sends HTML email campaigns when 10 new jobs accumulate",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "netlify dev",
+    "build": "echo \"No build step required\"",
+    "deploy": "netlify deploy --prod"
+  },
+  "keywords": [
+    "job-automation",
+    "email-marketing",
+    "rss-parser",
+    "mailchimp",
+    "netlify-functions"
+  ],
+  "author": "Elevate Career Group",
+  "license": "MIT",
+  "dependencies": {
+    "@mailchimp/mailchimp_marketing": "^3.0.80",
+    "axios": "^1.6.2",
+    "rss-parser": "^3.13.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.10.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
