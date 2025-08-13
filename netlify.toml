@@ -2,10 +2,6 @@
   functions = "netlify/functions"
   publish = "."
 
-[[functions]]
-  name = "job-email-scheduler"
-  schedule = "0 9 * * *"  # Daily at 9 AM UTC
-
 [build.environment]
   NODE_VERSION = "18"
 
