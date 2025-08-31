@@ -55,7 +55,7 @@ class MailchimpSender {
 
   async generateEmailContent(jobs) {
     try {
-      const templatePath = path.join(process.cwd(), 'src', 'email-template.html');
+      const templatePath = path.join(__dirname, '..', 'functions', 'email-template.html');
       let htmlTemplate = await fs.readFile(templatePath, 'utf8');
       
       const jobsHtml = jobs.map(job => this.generateJobHtml(job)).join('\n');
