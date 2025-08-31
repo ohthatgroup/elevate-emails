@@ -5,6 +5,9 @@
 [build.environment]
   NODE_VERSION = "18"
 
+[functions]
+  external_node_modules = ["@netlify/blobs", "@mailchimp/mailchimp_marketing"]
+
 [[headers]]
   for = "/*"
   [headers.values]

@@ -4,7 +4,10 @@
   "description": "Automated system that monitors job postings and sends HTML email campaigns when 10 new jobs accumulate",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node test-integration.js",
+    "test:rss": "node -e \"require('./test-integration.js').testRSSParser()\"",
+    "test:storage": "node -e \"require('./test-integration.js').testJobStorage()\"",
+    "test:mailchimp": "node -e \"require('./test-integration.js').testMailchimpConnection()\"",
     "dev": "netlify dev",
     "build": "echo \"No build step required\"",
     "deploy": "netlify deploy --prod"
@@ -20,6 +23,8 @@
   "license": "MIT",
   "dependencies": {
     "@mailchimp/mailchimp_marketing": "^3.0.80",
+    "@netlify/blobs": "^8.1.0",
+    "@netlify/functions": "^2.8.1",
     "axios": "^1.6.2",
     "rss-parser": "^3.13.0",
     "uuid": "^9.0.1"

@@ -63,3 +63,4 @@ Desktop.ini
 # Job storage (if using file-based storage)
 jobs.json
 job-counter.json
+CLAUDE.md
