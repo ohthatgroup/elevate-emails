@@ -1,18 +1,26 @@
 const RSSParser = require('../../src/rss-parser');
-const JobStorage = require('../../src/job-storage');
 const MailchimpSender = require('../../src/mailchimp-sender');
+const { getStore } = require('@netlify/blobs');
 
 exports.handler = async (event, context) => {
   console.log('🧪 Testing with latest 10 jobs...');
   
   try {
+    // Initialize Blobs store directly in handler
+    console.log('🔄 Initializing job storage...');
+    const jobStore = getStore('job-storage');
+    console.log('✅ Job store initialized');
+    
     const rssParser = new RSSParser();
-    const jobStorage = new JobStorage();
     const mailchimpSender = new MailchimpSender();
     
     // Clear existing storage first
-    await jobStorage.clearJobs();
-    console.log('✅ Cleared existing job storage');
+    try {
+      await jobStore.delete('accumulated-jobs');
+      console.log('✅ Cleared existing job storage');
+    } catch (e) {
+      console.log('ℹ️ No existing storage to clear');
+    }
     
     // Fetch latest jobs from RSS
     const allJobs = await rssParser.fetchNewJobs();
@@ -32,16 +40,17 @@ exports.handler = async (event, context) => {
     const latestJobs = allJobs.slice(0, 10);
     console.log(`📋 Selected ${latestJobs.length} jobs for testing`);
     
-    // Add jobs to storage
-    const storedJobs = await jobStorage.addJobs(latestJobs);
-    console.log(`💾 Stored ${storedJobs.length} jobs`);
+    // Store jobs directly in Blobs
+    console.log('💾 Storing jobs in Blobs...');
+    await jobStore.setJSON('accumulated-jobs', latestJobs);
+    console.log(`✅ Stored ${latestJobs.length} jobs in Blobs`);
     
     // Generate HTML email content instead of sending
     console.log('📧 Generating email HTML...');
-    const htmlContent = await mailchimpSender.generateEmailContent(storedJobs);
+    const htmlContent = await mailchimpSender.generateEmailContent(latestJobs);
     
     // Clear storage after test
-    await jobStorage.clearJobs();
+    await jobStore.delete('accumulated-jobs');
     console.log('🧹 Cleared storage after test');
     
     return {
