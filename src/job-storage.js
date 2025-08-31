@@ -3,66 +3,44 @@ const { getStore } = require('@netlify/blobs');
 class JobStorage {
   constructor() {
     this.storageKey = 'accumulated-jobs';
-    
-    // Debug environment variables
-    console.log('🔍 Environment check:');
-    console.log('  NETLIFY_FUNCTIONS_URL:', process.env.NETLIFY_FUNCTIONS_URL || 'undefined');
-    console.log('  AWS_LAMBDA_FUNCTION_NAME:', process.env.AWS_LAMBDA_FUNCTION_NAME || 'undefined');
-    console.log('  NETLIFY:', process.env.NETLIFY || 'undefined');
-    console.log('  NETLIFY_SITE_ID:', process.env.NETLIFY_SITE_ID || 'undefined');
+    this.store = null;
+    this.useBlobs = false;
+    this.fallbackStorage = {};
+  }
+
+  async getStore() {
+    if (this.store) return this.store;
     
     try {
-      console.log('🔄 Attempting to initialize Netlify Blobs...');
-      
-      // Try automatic initialization first
+      console.log('🔄 Initializing Netlify Blobs store...');
       this.store = getStore('job-storage');
       this.useBlobs = true;
-      console.log('✅ Netlify Blobs initialized successfully (auto)');
-      
+      console.log('✅ Netlify Blobs store initialized');
+      return this.store;
     } catch (error) {
-      console.error('❌ Auto initialization failed:', error.message);
-      
-      // Try manual initialization with siteID
-      if (process.env.NETLIFY_SITE_ID) {
-        try {
-          console.log('🔄 Trying manual initialization with siteID...');
-          this.store = getStore('job-storage', { 
-            siteID: process.env.NETLIFY_SITE_ID 
-          });
-          this.useBlobs = true;
-          console.log('✅ Netlify Blobs initialized successfully (manual)');
-        } catch (manualError) {
-          console.error('❌ Manual initialization also failed:', manualError.message);
-          console.log('📝 Falling back to in-memory storage');
-          this.useBlobs = false;
-          this.fallbackStorage = {};
-        }
-      } else {
-        console.log('📝 No NETLIFY_SITE_ID found, falling back to in-memory storage');
-        this.useBlobs = false;
-        this.fallbackStorage = {};
-      }
+      console.error('❌ Blobs store initialization failed:', error.message);
+      this.useBlobs = false;
+      return null;
     }
   }
 
   async getStoredJobs() {
     try {
-      let storedData;
+      const store = await this.getStore();
       
-      if (this.useBlobs) {
-        storedData = await this.store.get(this.storageKey);
-      } else {
-        storedData = this.fallbackStorage[this.storageKey];
+      if (store) {
+        console.log('📥 Reading jobs from Netlify Blobs...');
+        const jobs = await store.get(this.storageKey, { type: 'json' });
+        if (jobs) {
+          console.log(`📦 Retrieved ${jobs.length} stored jobs from Blobs`);
+          return Array.isArray(jobs) ? jobs : [];
+        }
       }
       
-      if (!storedData) {
-        console.log('No stored jobs found, returning empty array');
-        return [];
-      }
-      
-      const jobs = typeof storedData === 'string' ? JSON.parse(storedData) : storedData;
-      console.log(`Retrieved ${jobs.length} stored jobs`);
-      return Array.isArray(jobs) ? jobs : [];
+      console.log('📝 Using fallback storage');
+      const jobs = this.fallbackStorage[this.storageKey] || [];
+      console.log(`📦 Retrieved ${jobs.length} stored jobs from fallback`);
+      return jobs;
       
     } catch (error) {
       console.error('Error retrieving stored jobs:', error);
@@ -95,9 +73,13 @@ class JobStorage {
 
       const updatedJobs = [...existingJobs, ...uniqueNewJobs];
       
-      if (this.useBlobs) {
-        await this.store.set(this.storageKey, JSON.stringify(updatedJobs));
+      const store = await this.getStore();
+      if (store) {
+        console.log('💾 Saving jobs to Netlify Blobs...');
+        await store.setJSON(this.storageKey, updatedJobs);
+        console.log('✅ Jobs saved to Blobs');
       } else {
+        console.log('💾 Saving jobs to fallback storage...');
         this.fallbackStorage[this.storageKey] = updatedJobs;
       }
       
@@ -112,9 +94,13 @@ class JobStorage {
 
   async clearJobs() {
     try {
-      if (this.useBlobs) {
-        await this.store.delete(this.storageKey);
+      const store = await this.getStore();
+      if (store) {
+        console.log('🗑️ Clearing jobs from Netlify Blobs...');
+        await store.delete(this.storageKey);
+        console.log('✅ Blobs storage cleared');
       } else {
+        console.log('🗑️ Clearing fallback storage...');
         delete this.fallbackStorage[this.storageKey];
       }
       console.log('Job storage cleared successfully');
