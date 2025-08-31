@@ -36,27 +36,20 @@ exports.handler = async (event, context) => {
     const storedJobs = await jobStorage.addJobs(latestJobs);
     console.log(`💾 Stored ${storedJobs.length} jobs`);
     
-    // Force send email with these 10 jobs
-    console.log('📧 Sending test email campaign...');
-    const campaignResult = await mailchimpSender.sendJobCampaign(storedJobs);
+    // Generate HTML email content instead of sending
+    console.log('📧 Generating email HTML...');
+    const htmlContent = await mailchimpSender.generateEmailContent(storedJobs);
     
-    // Clear storage after sending
+    // Clear storage after test
     await jobStorage.clearJobs();
     console.log('🧹 Cleared storage after test');
     
     return {
       statusCode: 200,
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'text/html',
       },
-      body: JSON.stringify({
-        success: true,
-        message: 'Test completed successfully',
-        jobsProcessed: storedJobs.length,
-        campaignId: campaignResult.campaignId,
-        jobTitles: storedJobs.map(job => job.title),
-        sentAt: campaignResult.sentAt
-      })
+      body: htmlContent
     };
     
   } catch (error) {
