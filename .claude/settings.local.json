@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(netlify blobs:list:*)",
+      "WebFetch(domain:answers.netlify.com)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -6,7 +6,7 @@ exports.handler = async (event, context) => {
   console.log('🧪 Testing with latest 10 jobs...');
   
   try {
-    // Initialize Blobs store directly in handler
+    // Initialize Blobs store directly in handler - no configuration needed
     console.log('🔄 Initializing job storage...');
     const jobStore = getStore('job-storage');
     console.log('✅ Job store initialized');

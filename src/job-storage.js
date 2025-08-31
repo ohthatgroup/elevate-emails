@@ -13,12 +13,16 @@ class JobStorage {
     
     try {
       console.log('🔄 Initializing Netlify Blobs store...');
+      
+      // Netlify auto-populates context - no manual config needed
       this.store = getStore('job-storage');
       this.useBlobs = true;
       console.log('✅ Netlify Blobs store initialized');
       return this.store;
+      
     } catch (error) {
-      console.error('❌ Blobs store initialization failed:', error.message);
+      console.error('❌ Blobs initialization failed:', error.message);
+      console.log('📝 Falling back to in-memory storage');
       this.useBlobs = false;
       return null;
     }

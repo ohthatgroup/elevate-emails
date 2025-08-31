@@ -204,7 +204,7 @@ class MailchimpSender {
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                   <tr>
                     <td style="padding: 0 0 12px 0;">
-                      <p style="font-family: 'Roboto', Arial, sans-serif; font-size: 14px; color: #5D4299; font-weight: 600; margin: 0;">${this.escapeHtml(job.location)} • ${this.escapeHtml(job.salary_range)}</p>
+                      <p style="font-family: 'Roboto', Arial, sans-serif; font-size: 14px; color: #5D4299; font-weight: 600; margin: 0;">${this.escapeHtml(job.location)} | Hours: ${this.escapeHtml(job.hours || 'Full-time')}. | Salary: ${this.escapeHtml(job.salary_range)}${job.job_number ? ` | Job#${job.job_number}` : ''} |</p>
                     </td>
                   </tr>
                 </table>
