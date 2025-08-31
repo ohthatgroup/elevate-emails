@@ -7,6 +7,7 @@
 
 [functions]
   external_node_modules = ["@netlify/blobs", "@mailchimp/mailchimp_marketing"]
+  node_bundler = "esbuild"
 
 [[headers]]
   for = "/*"

@@ -1,6 +1,6 @@
-const mailchimp = require('@mailchimp/mailchimp_marketing');
-const fs = require('fs').promises;
-const path = require('path');
+import mailchimp from '@mailchimp/mailchimp_marketing';
+import { promises as fs } from 'fs';
+import path from 'path';
 
 class MailchimpSender {
   constructor() {
@@ -342,4 +342,4 @@ class MailchimpSender {
   }
 }
 
-module.exports = MailchimpSender;
+export default MailchimpSender;

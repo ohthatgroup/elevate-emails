@@ -1,5 +1,5 @@
-const Parser = require('rss-parser');
-const crypto = require('crypto');
+import Parser from 'rss-parser';
+import crypto from 'crypto';
 
 class RSSParser {
   constructor() {
@@ -234,4 +234,4 @@ class RSSParser {
   }
 }
 
-module.exports = RSSParser;
+export default RSSParser;

@@ -1,7 +1,7 @@
-const { schedule } = require('@netlify/functions');
-const RSSParser = require('../../src/rss-parser');
-const JobStorage = require('../../src/job-storage');
-const MailchimpSender = require('../../src/mailchimp-sender');
+import { schedule } from '@netlify/functions';
+import RSSParser from '../../src/rss-parser.js';
+import JobStorage from '../../src/job-storage.js';
+import MailchimpSender from '../../src/mailchimp-sender.js';
 
 const handler = async (event, context) => {
   console.log('Job email scheduler triggered at:', new Date().toISOString());

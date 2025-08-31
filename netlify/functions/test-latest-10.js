@@ -1,9 +1,11 @@
-const RSSParser = require('../../src/rss-parser');
-const MailchimpSender = require('../../src/mailchimp-sender');
-const { getStore } = require('@netlify/blobs');
+import RSSParser from '../../src/rss-parser.js';
+import MailchimpSender from '../../src/mailchimp-sender.js';
+import { getStore } from '@netlify/blobs';
 
-exports.handler = async (event, context) => {
+export default async (req, context) => {
   console.log('🧪 Testing with latest 10 jobs...');
+  console.log('Environment variables:', Object.keys(process.env).filter(key => key.includes('NETLIFY')));
+  console.log('Context keys:', Object.keys(context || {}));
   
   try {
     // Initialize Blobs store directly in handler - no configuration needed

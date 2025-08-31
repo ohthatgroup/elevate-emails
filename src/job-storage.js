@@ -1,4 +1,4 @@
-const { getStore } = require('@netlify/blobs');
+import { getStore } from '@netlify/blobs';
 
 class JobStorage {
   constructor() {
@@ -14,10 +14,13 @@ class JobStorage {
     try {
       console.log('🔄 Initializing Netlify Blobs store...');
       
-      // Netlify auto-populates context - no manual config needed
-      this.store = getStore('job-storage');
+      // Manual configuration with siteID and token
+      this.store = getStore('job-storage', {
+        siteID: '448fec77-521b-4a59-84c2-d745b8b9d2c4',
+        token: process.env.NETLIFY_AUTH_TOKEN
+      });
       this.useBlobs = true;
-      console.log('✅ Netlify Blobs store initialized');
+      console.log('✅ Netlify Blobs store initialized with manual config');
       return this.store;
       
     } catch (error) {
@@ -194,4 +197,4 @@ class JobStorage {
   }
 }
 
-module.exports = JobStorage;
+export default JobStorage;
