@@ -13,14 +13,35 @@ class JobStorage {
     
     try {
       console.log('🔄 Attempting to initialize Netlify Blobs...');
+      
+      // Try automatic initialization first
       this.store = getStore('job-storage');
       this.useBlobs = true;
-      console.log('✅ Netlify Blobs initialized successfully');
+      console.log('✅ Netlify Blobs initialized successfully (auto)');
+      
     } catch (error) {
-      console.error('❌ Netlify Blobs initialization failed:', error.name, error.message);
-      console.log('📝 Falling back to in-memory storage');
-      this.useBlobs = false;
-      this.fallbackStorage = {};
+      console.error('❌ Auto initialization failed:', error.message);
+      
+      // Try manual initialization with siteID
+      if (process.env.NETLIFY_SITE_ID) {
+        try {
+          console.log('🔄 Trying manual initialization with siteID...');
+          this.store = getStore('job-storage', { 
+            siteID: process.env.NETLIFY_SITE_ID 
+          });
+          this.useBlobs = true;
+          console.log('✅ Netlify Blobs initialized successfully (manual)');
+        } catch (manualError) {
+          console.error('❌ Manual initialization also failed:', manualError.message);
+          console.log('📝 Falling back to in-memory storage');
+          this.useBlobs = false;
+          this.fallbackStorage = {};
+        }
+      } else {
+        console.log('📝 No NETLIFY_SITE_ID found, falling back to in-memory storage');
+        this.useBlobs = false;
+        this.fallbackStorage = {};
+      }
     }
   }
 
