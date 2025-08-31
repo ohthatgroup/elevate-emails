@@ -2,20 +2,34 @@ const { getStore } = require('@netlify/blobs');
 
 class JobStorage {
   constructor() {
-    this.store = getStore('job-storage');
-    this.storageKey = 'accumulated-jobs';
+    try {
+      this.store = getStore('job-storage');
+      this.storageKey = 'accumulated-jobs';
+      this.useBlobs = true;
+    } catch (error) {
+      console.warn('Netlify Blobs not available, using fallback storage');
+      this.useBlobs = false;
+      this.fallbackStorage = {};
+      this.storageKey = 'accumulated-jobs';
+    }
   }
 
   async getStoredJobs() {
     try {
-      const storedData = await this.store.get(this.storageKey);
+      let storedData;
+      
+      if (this.useBlobs) {
+        storedData = await this.store.get(this.storageKey);
+      } else {
+        storedData = this.fallbackStorage[this.storageKey];
+      }
       
       if (!storedData) {
         console.log('No stored jobs found, returning empty array');
         return [];
       }
       
-      const jobs = JSON.parse(storedData);
+      const jobs = typeof storedData === 'string' ? JSON.parse(storedData) : storedData;
       console.log(`Retrieved ${jobs.length} stored jobs`);
       return Array.isArray(jobs) ? jobs : [];
       
@@ -49,7 +63,12 @@ class JobStorage {
       }
 
       const updatedJobs = [...existingJobs, ...uniqueNewJobs];
-      await this.store.set(this.storageKey, JSON.stringify(updatedJobs));
+      
+      if (this.useBlobs) {
+        await this.store.set(this.storageKey, JSON.stringify(updatedJobs));
+      } else {
+        this.fallbackStorage[this.storageKey] = updatedJobs;
+      }
       
       console.log(`Added ${uniqueNewJobs.length} unique jobs. Total: ${updatedJobs.length}`);
       return updatedJobs;
@@ -62,7 +81,11 @@ class JobStorage {
 
   async clearJobs() {
     try {
-      await this.store.delete(this.storageKey);
+      if (this.useBlobs) {
+        await this.store.delete(this.storageKey);
+      } else {
+        delete this.fallbackStorage[this.storageKey];
+      }
       console.log('Job storage cleared successfully');
       return true;
       
@@ -96,7 +119,11 @@ class JobStorage {
       });
 
       if (recentJobs.length !== jobs.length) {
-        await this.store.set(this.storageKey, JSON.stringify(recentJobs));
+        if (this.useBlobs) {
+          await this.store.set(this.storageKey, JSON.stringify(recentJobs));
+        } else {
+          this.fallbackStorage[this.storageKey] = recentJobs;
+        }
         console.log(`Removed ${jobs.length - recentJobs.length} old jobs`);
       }
 
