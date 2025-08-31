@@ -2,15 +2,25 @@ const { getStore } = require('@netlify/blobs');
 
 class JobStorage {
   constructor() {
+    this.storageKey = 'accumulated-jobs';
+    
+    // Debug environment variables
+    console.log('🔍 Environment check:');
+    console.log('  NETLIFY_FUNCTIONS_URL:', process.env.NETLIFY_FUNCTIONS_URL || 'undefined');
+    console.log('  AWS_LAMBDA_FUNCTION_NAME:', process.env.AWS_LAMBDA_FUNCTION_NAME || 'undefined');
+    console.log('  NETLIFY:', process.env.NETLIFY || 'undefined');
+    console.log('  NETLIFY_SITE_ID:', process.env.NETLIFY_SITE_ID || 'undefined');
+    
     try {
+      console.log('🔄 Attempting to initialize Netlify Blobs...');
       this.store = getStore('job-storage');
-      this.storageKey = 'accumulated-jobs';
       this.useBlobs = true;
+      console.log('✅ Netlify Blobs initialized successfully');
     } catch (error) {
-      console.warn('Netlify Blobs not available, using fallback storage');
+      console.error('❌ Netlify Blobs initialization failed:', error.name, error.message);
+      console.log('📝 Falling back to in-memory storage');
       this.useBlobs = false;
       this.fallbackStorage = {};
-      this.storageKey = 'accumulated-jobs';
     }
   }
 
