@@ -3,7 +3,11 @@
     "allow": [
       "Bash(netlify blobs:list:*)",
       "WebFetch(domain:answers.netlify.com)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(netlify deploy:*)",
+      "Bash(rm:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)"
     ],
     "deny": [],
     "ask": []

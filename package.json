@@ -2,6 +2,7 @@
   "name": "elevate-automated-job-email-system",
   "version": "1.0.0",
   "description": "Automated system that monitors job postings and sends HTML email campaigns when 10 new jobs accumulate",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "node test-integration.js",
